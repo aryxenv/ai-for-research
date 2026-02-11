@@ -1,1 +1,0 @@
-uv run mcp run main.py

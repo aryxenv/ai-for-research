@@ -24,7 +24,7 @@ A Python-based Model Context Protocol (MCP) server that integrates Azure AI Sear
 
 ```bash
 git clone https://github.com/anassgallass/AI-for-Research---Dev-productivity.git
-cd mcp-server
+cd azure-ai-search-mcp
 uv sync
 ```
 
@@ -32,7 +32,7 @@ uv sync
 
 ### Environment Variables
 
-Create a `.env` file in your workspace root (parent of `mcp-server` directory) with these variables:
+Create a `.env` file in your workspace root (parent of `azure-ai-search-mcp` directory) with these variables:
 
 ```env
 AZURE_SEARCH_ENDPOINT=https://your-search-service.search.windows.net
@@ -83,7 +83,7 @@ Add to your VSCode configuration:
                 "run",
                 "main.py"
             ],
-            "cwd": "${workspaceFolder}/mcp-server"
+            "cwd": "${workspaceFolder}/azure-ai-search-mcp"
         }
     }
 }
@@ -214,7 +214,7 @@ The document ID doesn't exist in your index. Use a search tool first to find val
 ### Project Structure
 
 ```
-mcp-server/
+azure-ai-search-mcp/
 ├── main.py                    # MCP server entry point
 ├── pyproject.toml             # Project dependencies
 ├── .env.example               # Example environment variables

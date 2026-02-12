@@ -124,6 +124,6 @@ uv run mcp run main.py # add flag `--env-file ../.env` between `run` and `mcp` f
 
 ## Credits
 
-[Aryan Shah (SE Intern)](https://github.com/aryxenv): RAG Pipeline + Azure Setup + Foundry Setup + MCP Server Setup + Documentation
-[Anass Gallass (SSP Intern)](https://github.com/anassgallass): Github MCP setup & integration
-[Bertille Mathieu (SE Intern)](https://github.com/bertillessec): OpenWebUI MCP setup & integration
+- [Aryan Shah (SE Intern)](https://github.com/aryxenv): RAG Pipeline + Azure Setup + Foundry Setup + MCP Server Setup + Documentation
+- [Anass Gallass (SSP Intern)](https://github.com/anassgallass): Github MCP setup & integration
+- [Bertille Mathieu (SE Intern)](https://github.com/bertillessec): OpenWebUI MCP setup & integration

@@ -65,7 +65,7 @@ Dev mode launches the **MCP Inspector** — a browser-based UI that lets you inv
 **Windows (PowerShell):**
 
 ```powershell
-.\scripts\dev.ps1              # default SSE port 8080
+.\scripts\dev.ps1              # default port 8000
 .\scripts\dev.ps1 -Port 9090   # custom port
 ```
 
@@ -73,65 +73,62 @@ Dev mode launches the **MCP Inspector** — a browser-based UI that lets you inv
 
 ```bash
 chmod +x scripts/dev.sh
-./scripts/dev.sh            # default SSE port 8080
+./scripts/dev.sh            # default port 8000
 ./scripts/dev.sh 9090       # custom port
 ```
 
 The Inspector will open at **http://localhost:6274**.
 
-### Prod Mode (stdio)
+### Prod Mode (streamable-http)
 
-Prod mode runs the server over **stdio**, which is the transport expected by GitHub Copilot, Claude Desktop, and most MCP clients.
+Prod mode runs the server with **streamable-http** transport, exposing an HTTP endpoint
+that GitHub Copilot, Claude Desktop, mcpo, and any MCP-compatible client can connect to.
 
 **Windows (PowerShell):**
 
 ```powershell
-.\scripts\prod.ps1
+.\scripts\prod.ps1                              # default: 0.0.0.0:8000
+.\scripts\prod.ps1 -Port 9000                   # custom port
+.\scripts\prod.ps1 -Host 127.0.0.1 -Port 9000  # localhost only
 ```
 
 **macOS / Linux:**
 
 ```bash
 chmod +x scripts/prod.sh
-./scripts/prod.sh
+./scripts/prod.sh                   # default: 0.0.0.0:8000
+./scripts/prod.sh 127.0.0.1 9000    # custom host + port
 ```
 
 You can also run directly:
 
 ```bash
-uv run python main.py                    # stdio (default)
-uv run python main.py --transport sse    # SSE mode
-uv run python main.py --transport sse --port 9090
+uv run python main.py                                            # streamable-http on 0.0.0.0:8000 (default)
+uv run python main.py --port 9000                                # custom port
+uv run python main.py --host 127.0.0.1                           # localhost only
+uv run python main.py --transport stdio                          # legacy stdio mode
+uv run python main.py --transport sse --port 8000                # legacy SSE mode
 ```
 
 ## GitHub Copilot Integration
 
 This server can be used as a **custom MCP server** in GitHub Copilot (VS Code).
 
+> **Prerequisite:** The MCP server must be running first (e.g. via `scripts/prod.ps1`).
+
 ### Option 1 — Workspace config (recommended)
 
-A ready-to-use config is provided at `.vscode/mcp.json`. Open it and fill in your Azure credentials when prompted, **or** hardcode environment values:
+A ready-to-use config is provided at `.vscode/mcp.json`. It connects to the running MCP server over HTTP:
 
 ```jsonc
 // .vscode/mcp.json
 {
   "servers": {
     "azure-ai-search": {
-      "type": "stdio",
-      "command": "uv",
-      "args": [
-        "run",
-        "--directory",
-        "${workspaceFolder}/azure-ai-search-mcp",
-        "python",
-        "main.py",
-        "--transport",
-        "stdio",
-      ],
-      "env": {
-        "AZURE_SEARCH_ENDPOINT": "https://your-service.search.windows.net",
-        "AZURE_SEARCH_API_KEY": "your-api-key",
-        "AZURE_SEARCH_INDEX_NAME": "your-index-name",
+      "type": "http",
+      "url": "http://localhost:8000/mcp",
+      "headers": {
+        "Content-Type": "application/json",
       },
     },
   },
@@ -147,22 +144,29 @@ Add the server to your VS Code **User Settings** (`settings.json`):
   "mcp": {
     "servers": {
       "azure-ai-search": {
-        "type": "stdio",
-        "command": "uv",
-        "args": [
-          "run",
-          "--directory",
-          "/absolute/path/to/azure-ai-search-mcp",
-          "python",
-          "main.py",
-          "--transport",
-          "stdio",
-        ],
-        "env": {
-          "AZURE_SEARCH_ENDPOINT": "https://your-service.search.windows.net",
-          "AZURE_SEARCH_API_KEY": "your-api-key",
-          "AZURE_SEARCH_INDEX_NAME": "your-index-name",
+        "type": "http",
+        "url": "http://localhost:8000/mcp",
+        "headers": {
+          "Content-Type": "application/json",
         },
+      },
+    },
+  },
+}
+```
+
+### Option 3 — Remote / containerised deployment
+
+If the MCP server runs in a container or remote host, just point the URL at it:
+
+```jsonc
+{
+  "servers": {
+    "azure-ai-search": {
+      "type": "http",
+      "url": "https://your-container-app.azurecontainerapps.io/mcp",
+      "headers": {
+        "Content-Type": "application/json",
       },
     },
   },
@@ -281,7 +285,7 @@ You can customize which fields are excluded via the `AZURE_SEARCH_EXCLUDE_FIELDS
 
 ## OpenWebUI Integration
 
-OpenWebUI doesn't support MCP's stdio transport natively. We use [`mcpo`](https://pypi.org/project/mcpo/) to bridge the MCP server to an OpenAPI endpoint that OpenWebUI can consume.
+OpenWebUI doesn't support the MCP protocol natively. We use [`mcpo`](https://pypi.org/project/mcpo/) to bridge the running MCP server (streamable-http) to an OpenAPI endpoint that OpenWebUI can consume.
 
 ### Prerequisites
 
@@ -289,26 +293,32 @@ OpenWebUI doesn't support MCP's stdio transport natively. We use [`mcpo`](https:
 pip install mcpo
 ```
 
-### Run the mcpo proxy
+### Run the MCP server + mcpo proxy
+
+The OpenWebUI scripts start the MCP server in the background, then launch mcpo
+pointing at it over streamable-http:
 
 From the `azure-ai-search-mcp` directory:
 
 **Windows (PowerShell):**
 
 ```powershell
-.\scripts\openwebui.ps1                        # default port 8000, api-key "top-secret"
-.\scripts\openwebui.ps1 -Port 9000             # custom port
-.\scripts\openwebui.ps1 -ApiKey "my-secret"    # custom api key
+.\scripts\openwebui_mcp.ps1                                       # MCP on 8000, mcpo on 8001
+.\scripts\openwebui_mcp.ps1 -McpPort 9090 -McpoPort 9000          # custom ports
+.\scripts\openwebui_mcp.ps1 -ApiKey "my-secret"                   # custom api key
 ```
 
 **macOS / Linux:**
 
 ```bash
-chmod +x scripts/openwebui.sh
-./scripts/openwebui.sh              # default port 8000, api-key "top-secret"
-./scripts/openwebui.sh 9000         # custom port
-./scripts/openwebui.sh 8000 my-key  # custom port + api key
+chmod +x scripts/openwebui_mcp.sh
+./scripts/openwebui_mcp.sh                     # MCP on 8000, mcpo on 8001
+./scripts/openwebui_mcp.sh 9090 9000           # custom ports
+./scripts/openwebui_mcp.sh 8080 8000 my-key    # custom ports + api key
 ```
+
+> **Note:** If you already have the MCP server running (e.g. via `scripts/prod.ps1`),
+> you can start mcpo separately: `mcpo --port 8001 --config mcpo-config.json --api-key "top-secret"`
 
 ### Add to OpenWebUI
 
@@ -323,7 +333,8 @@ chmod +x scripts/openwebui.sh
 
 The MCP tools will now be available in your OpenWebUI chats (you may need to enable them manually before submitting a prompt).
 
-> **Note:** The mcpo proxy and the GitHub Copilot stdio config are completely independent — they spawn separate processes and do not interfere with each other.
+> **Note:** The mcpo proxy and the GitHub Copilot config both connect to the same
+> running MCP server over streamable-http — they can run simultaneously without conflict.
 
 ## Troubleshooting
 
@@ -355,15 +366,14 @@ The document ID doesn't exist in your index. Use a search tool first to find val
 azure-ai-search-mcp/
 ├── main.py                    # MCP server entry point
 ├── pyproject.toml             # Project dependencies
-├── .env.example               # Example environment variables
 ├── .python-version            # Python version specification
 ├── azure_search_client.py      # Azure Search client utilities
 ├── mcpo-config.json            # mcpo config for OpenWebUI integration
 ├── scripts/
 │   ├── dev.ps1                # Dev mode launcher (Windows)
 │   ├── dev.sh                 # Dev mode launcher (macOS/Linux)
-│   ├── openwebui.ps1          # OpenWebUI mcpo launcher (Windows)
-│   ├── openwebui.sh           # OpenWebUI mcpo launcher (macOS/Linux)
+│   ├── openwebui_mcp.ps1      # OpenWebUI mcpo launcher (Windows)
+│   ├── openwebui_mcp.sh       # OpenWebUI mcpo launcher (macOS/Linux)
 │   ├── prod.ps1               # Prod mode launcher (Windows)
 │   └── prod.sh                # Prod mode launcher (macOS/Linux)
 ├── tools/

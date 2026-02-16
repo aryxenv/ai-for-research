@@ -3,14 +3,18 @@
 This server provides semantic search, hybrid search, text search, filtered search,
 and document retrieval tools for AI agents using Azure AI Search.
 
-Supports two transport modes:
-  - stdio  (default): For use with GitHub Copilot, Claude Desktop, and other MCP clients
-  - sse   : For HTTP-based streaming (development / web clients)
+Supports three transport modes:
+  - streamable-http (default): HTTP endpoint for GitHub Copilot, Claude Desktop,
+                                remote/containerised deployments, and mcpo proxy
+  - stdio  : Legacy local-process mode (fallback only)
+  - sse    : Legacy SSE streaming (fallback only)
 
 Usage:
-  python main.py              # stdio mode (default)
-  python main.py --transport stdio
-  python main.py --transport sse --port 8080
+  python main.py                                          # streamable-http on 0.0.0.0:8000
+  python main.py --port 9000                              # custom port
+  python main.py --host 127.0.0.1                         # localhost only
+  python main.py --transport stdio                        # legacy stdio
+  python main.py --transport sse --port 8000              # legacy SSE
 """
 
 import argparse
@@ -31,8 +35,8 @@ from tools import (
 )
 
 # Load environment variables from .env in current dir and parent dir
-load_dotenv()                          # ./azure-ai-search-mcp/.env
-load_dotenv(dotenv_path="../.env")     # workspace root .env
+# load_dotenv()                          # if env is in ./azure-ai-search-mcp/.env
+load_dotenv(dotenv_path="../.env")     # if env is in workspace root
 
 # Validate env vars before starting
 required_vars = [
@@ -100,15 +104,21 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Azure AI Search MCP Server")
     parser.add_argument(
         "--transport",
-        choices=["stdio", "sse"],
-        default="stdio",
-        help="Transport protocol (default: stdio)",
+        choices=["stdio", "sse", "streamable-http"],
+        default="streamable-http",
+        help="Transport protocol (default: streamable-http)",
+    )
+    parser.add_argument(
+        "--host",
+        type=str,
+        default="0.0.0.0",
+        help="Host to bind to (default: 0.0.0.0)",
     )
     parser.add_argument(
         "--port",
         type=int,
-        default=8080,
-        help="Port for SSE transport (default: 8080)",
+        default=8000,
+        help="Port for HTTP/SSE transport (default: 8000)",
     )
     return parser.parse_args()
 
@@ -116,9 +126,17 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    if args.transport == "sse":
-        # SSE mode – useful for development with MCP Inspector or web clients
-        server.run(transport="sse", port=args.port)
+    # Host and port are set on the server instance (used by http & sse transports)
+    server.settings.host = args.host
+    server.settings.port = args.port
+
+    if args.transport == "streamable-http":
+        # Streamable HTTP – primary mode for remote / containerised deployments,
+        # GitHub Copilot ("type": "http"), Claude Desktop, and mcpo proxy.
+        server.run(transport="streamable-http")
+    elif args.transport == "sse":
+        # SSE mode – legacy; useful for MCP Inspector or older web clients
+        server.run(transport="sse")
     else:
-        # stdio mode – used by GitHub Copilot, Claude Desktop, etc.
+        # stdio mode – legacy local-process mode
         server.run(transport="stdio")

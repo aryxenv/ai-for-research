@@ -32,7 +32,7 @@ Use internal knowledge sources with AI agents using MCP with Azure.
 10. Make sure `API Keys` is selected in API Access Control
 11. Copy the API key under `Manage query keys`.
 12. Paste that API key in the `.env` in the field `AZURE_SEARCH_API_KEY`
-13. in the `.env` on field `AZURE_SEARCH_INDEX_NAME`, rename that to your index name, by default if not changed, use `vector-index`.
+13. In the `.env`, set the field `AZURE_SEARCH_INDEX_NAME` to your index name. If you didn't change it, use `vector-index`.
 14. Under `Manage admin keys`, copy the `Primary admin key`.
 15. Paste the primary admin key in the `.env` in field `AZURE_SEARCH_PRIMARY_API_KEY`
 16. The vector index is set up!
@@ -87,46 +87,52 @@ Use internal knowledge sources with AI agents using MCP with Azure.
 
 You must run these from the `azure-ai-search-mcp` directory for the scripts to work.
 
-The server supports two transport modes:
+The server supports three transport modes:
 
-- **stdio** (default): For use with GitHub Copilot, Claude Desktop, and other MCP clients
-- **sse**: For HTTP-based streaming (development / web clients via MCP Inspector)
+- **streamable-http** (default): HTTP endpoint for GitHub Copilot, Claude Desktop, mcpo, and other MCP clients
+- **stdio**: Legacy local-process mode
+- **sse**: Legacy SSE streaming (for MCP Inspector or older web clients)
 
 **Option A: Use the scripts**
 
 Windows (PowerShell):
 
 ```powershell
-# Dev server (SSE + MCP Inspector at http://localhost:6274)
-.\scripts\dev.ps1              # default port 8080
+# Dev server (MCP Inspector at http://localhost:6274)
+.\scripts\dev.ps1              # default port 8000
 .\scripts\dev.ps1 -Port 9090   # custom port
 
-# Prod server (stdio)
-.\scripts\prod.ps1
+# Prod server (streamable-http)
+.\scripts\prod.ps1                              # default: 0.0.0.0:8000
+.\scripts\prod.ps1 -Port 9000                   # custom port
+.\scripts\prod.ps1 -BindAddress 127.0.0.1       # localhost only
 ```
 
 macOS / Linux:
 
 ```bash
-# Dev server (SSE + MCP Inspector at http://localhost:6274)
+# Dev server (MCP Inspector at http://localhost:6274)
 chmod +x scripts/dev.sh
-./scripts/dev.sh            # default port 8080
+./scripts/dev.sh            # default port 8000
 ./scripts/dev.sh 9090       # custom port
 
-# Prod server (stdio)
+# Prod server (streamable-http)
 chmod +x scripts/prod.sh
-./scripts/prod.sh
+./scripts/prod.sh                   # default: 0.0.0.0:8000
+./scripts/prod.sh 127.0.0.1 9000    # custom host + port
 ```
 
 **Option B: Run directly**
 
 ```bash
-# stdio mode (default, used by GitHub Copilot / Claude Desktop)
-uv run python main.py
+# streamable-http mode (default)
+uv run python main.py                                # 0.0.0.0:8000
+uv run python main.py --port 9000                    # custom port
+uv run python main.py --host 127.0.0.1               # localhost only
 
-# SSE mode (for MCP Inspector / web clients)
-uv run python main.py --transport sse
-uv run python main.py --transport sse --port 9090
+# Legacy modes
+uv run python main.py --transport stdio               # stdio
+uv run python main.py --transport sse --port 8000     # SSE
 ```
 
 ### Available Tools
@@ -141,10 +147,10 @@ uv run python main.py --transport sse --port 9090
 
 ### GitHub Copilot MCP setup
 
-1. Go to [`./.vscode/mcp.json`](./.vscode/mcp.json)
-2. Click on `Start Server`
-3. You will be prompted to enter your Azure AI Search endpoint, API key, and index name — make sure these are already set up following the instructions above.
-4. GitHub Copilot's **Agent mode** will auto-discover the tools. You can verify under **MCP: List Servers** in the Command Palette.
+1. Make sure the MCP server is running first (e.g. via `scripts/prod.ps1` from the `azure-ai-search-mcp` directory).
+2. The workspace config at [`.vscode/mcp.json`](./.vscode/mcp.json) connects to the running server at `http://localhost:8000/mcp`.
+3. In VS Code, open the Command Palette and run **MCP: List Servers** to verify the connection.
+4. GitHub Copilot's **Agent mode** will auto-discover the tools.
 
 > [!NOTE]
 > You may need to reload VS Code or the window so GitHub Copilot picks up the MCP server.
@@ -154,37 +160,35 @@ uv run python main.py --transport sse --port 9090
 
 ### OpenWebUI MCP setup
 
-First we need to setup OpenWebUI
+First we need to set up OpenWebUI:
 
-1. Install with uv + python
+1. Install with uv + python:
 
 ```powershell
 $env:DATA_DIR="C:\open-webui\data"; uvx --python 3.11 open-webui@latest serve
 ```
 
-2. Open on `localhost:8080`
-3. Create an admin account.
-4. Click on your profile (bottom left)
-5. Click on `Admin Panel`
-6. In top nav bar, click on `Settings`
-7. Go to `Connections`, delete default OpenAI connection and disable ollama connection.
-8. Click on plus icon next to `Manage OpenAI API Connections`
-9. From `.env`, Use your `AZURE_OPENAI_INFERENCE` URL for `API base URL` (IMPORTANT: WITHOUT TRAILING SLASH AT THE END!)
-10. From `.env` copy your `AZURE_OPENAI_API_KEY`and paste it next to `Bearer` in `Auth`.
-11. Ensure `Provider Type` is NOT `Azure OpenAI`, if it is, click on it to switch it to `OpenAI`
-12. Model ID should be `Mistral-Large-3`
-13. Hit `Save`
+2. Open `http://localhost:8080` and create an admin account.
+3. Click on your profile (bottom left) → **Admin Panel**.
+4. In top nav bar, click on **Settings** → **Connections**.
+5. Delete the default OpenAI connection and disable the Ollama connection.
+6. Click the plus icon next to **Manage OpenAI API Connections**.
+7. From `.env`, use your `AZURE_OPENAI_INFERENCE` URL for **API base URL** (IMPORTANT: without trailing slash!).
+8. From `.env`, copy your `AZURE_OPENAI_API_KEY` and paste it next to **Bearer** in **Auth**.
+9. Ensure **Provider Type** is NOT `Azure OpenAI` — if it is, click on it to switch it to `OpenAI`.
+10. Set **Model ID** to `Mistral-Large-3`.
+11. Hit **Save**.
 
 ## MCP
 
-1. Navigate to [`azure-ai-search-mcp`](./azure-ai-search-mcp/), this will now be your main directory.
+1. Navigate to [`azure-ai-search-mcp`](./azure-ai-search-mcp/) — this will be your working directory.
 2. Install dependencies with uv:
 
 ```bash
 uv sync
 ```
 
-OpenWebUI doesn't support MCP's stdio transport natively. We use [`mcpo`](https://pypi.org/project/mcpo/) to bridge the MCP server to an OpenAPI endpoint that OpenWebUI can consume.
+OpenWebUI doesn't support MCP natively. We use [`mcpo`](https://pypi.org/project/mcpo/) to bridge the running MCP server (streamable-http) to an OpenAPI endpoint that OpenWebUI can consume.
 
 #### Prerequisites
 
@@ -192,47 +196,42 @@ OpenWebUI doesn't support MCP's stdio transport natively. We use [`mcpo`](https:
 pip install mcpo
 ```
 
-#### Run the mcpo proxy
+#### Run the MCP server + mcpo proxy
 
 From the `azure-ai-search-mcp` directory:
 
 Windows (PowerShell):
 
 ```powershell
-.\scripts\openwebui.ps1                        # default port 8000, api-key "top-secret"
-.\scripts\openwebui.ps1 -Port 9000             # custom port
-.\scripts\openwebui.ps1 -ApiKey "my-secret"    # custom api key
+.\scripts\openwebui_mcp.ps1                                       # MCP on 8000, mcpo on 8001
+.\scripts\openwebui_mcp.ps1 -McpPort 9090 -McpoPort 9000          # custom ports
+.\scripts\openwebui_mcp.ps1 -ApiKey "my-secret"                   # custom API key
 ```
 
 macOS / Linux:
 
 ```bash
-chmod +x scripts/openwebui.sh
-./scripts/openwebui.sh              # default port 8000, api-key "top-secret"
-./scripts/openwebui.sh 9000         # custom port
-./scripts/openwebui.sh 8000 my-key  # custom port + api key
+chmod +x scripts/openwebui_mcp.sh
+./scripts/openwebui_mcp.sh                     # MCP on 8000, mcpo on 8001
+./scripts/openwebui_mcp.sh 9090 9000           # custom ports
+./scripts/openwebui_mcp.sh 8080 8000 my-key    # custom ports + API key
 ```
 
 #### Add to OpenWebUI
 
-1. Open OpenWebUI (default: `http://localhost:8080`)
-2. Open on `localhost:8080`
-3. Create an admin account. (if not already done)
-4. Click on your profile (bottom left)
-5. Click on `Admin Panel`
-6. In top nav bar, click on `Settings`
-7. Go to `External Tools`
-8. Add tool server by clicking on plus icon next to `Manage Tool Servers`
-9. Enter:
-   - **URL**: `http://localhost:8000/azure-ai-search`
+1. Open OpenWebUI (default: `http://localhost:8080`).
+2. Click on your profile (bottom left) → **Admin Panel**.
+3. In top nav bar, click on **Settings** → **External Tools**.
+4. Click the plus icon next to **Manage Tool Servers**.
+5. Enter:
+   - **URL**: `http://localhost:8001/azure-ai-search`
    - **API Key**: `top-secret` (or whatever you set when launching the script)
-   - Also add ID, name, description with anything you want.
-10. Click **Save**
+6. Click **Save**.
 
-The MCP tools will now be available in your OpenWebUI chats. (Might need to enable it manually before submitting prompt)
+The MCP tools will now be available in your OpenWebUI chats (you may need to enable them manually before submitting a prompt).
 
 > [!NOTE]
-> The mcpo proxy and the GitHub Copilot stdio config are completely independent — they spawn separate processes and do not interfere with each other.
+> The mcpo proxy and the GitHub Copilot HTTP config are independent — they both connect to the same MCP server and can run simultaneously.
 
 ## Credits
 

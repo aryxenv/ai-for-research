@@ -15,7 +15,7 @@
     {
       "name": "contentVector",
       "type": "Collection(Edm.Single)",
-      "dimensions": 1536,
+      "dimensions": 3072,
       "vectorSearchProfile": "vec"
     },
     {

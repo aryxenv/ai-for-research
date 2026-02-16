@@ -233,6 +233,19 @@ The MCP tools will now be available in your OpenWebUI chats (you may need to ena
 > [!NOTE]
 > The mcpo proxy and the GitHub Copilot HTTP config are independent — they both connect to the same MCP server and can run simultaneously.
 
+## Cloud Deployment (Azure Container Apps)
+
+The MCP server can be deployed to [Azure Container Apps](https://learn.microsoft.com/azure/container-apps/) for remote access via streamable-http — no local server required.
+
+```powershell
+# From the azure-ai-search-mcp directory (reads secrets from ../.env)
+.\azure\deploy.ps1
+```
+
+This single command provisions an ACR, builds the Docker image remotely, and deploys a Container App. The output includes the MCP endpoint URL you can plug into `.vscode/mcp.json`.
+
+See the full guide: [`azure-ai-search-mcp/azure/README.md`](./azure-ai-search-mcp/azure/README.md).
+
 ## Credits
 
 - [Aryan Shah (SE Intern)](https://github.com/aryxenv): RAG Pipeline + Azure Setup + Foundry Setup + MCP Server Setup + Github Copilot MCP setup & integration + OpenWebUI MCP setup & integration + Documentation

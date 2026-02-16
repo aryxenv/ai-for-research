@@ -41,7 +41,8 @@ param azureSearchExcludeFields string = 'contentVector'
 var containerAppName = '${appName}-app'
 var imageName = '${appName}-server'
 
-// Look up the existing ACR to get credentials
+// Reconstruct the ACR name using the same formula as infra.bicep so the
+// `existing` resource reference resolves to the registry created in Phase 1.
 var uniqueSuffix = uniqueString(resourceGroup().id, appName)
 var acrName = take(replace('${appName}acr${uniqueSuffix}', '-', ''), 50)
 

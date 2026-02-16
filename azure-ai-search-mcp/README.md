@@ -173,6 +173,8 @@ If the MCP server runs in a container or remote host, just point the URL at it:
 }
 ```
 
+> **Tip:** See the [Azure Container Apps deployment guide](./azure/README.md) for a one-command deploy to Azure.
+
 After configuring, Copilot's **Agent mode** (Chat panel) will auto-discover the tools (`semantic_search`, `hybrid_search`, `text_search`, `filtered_search`, `fetch_document`). You can verify under **MCP: List Servers** in the Command Palette.
 
 ## Available Tools
@@ -327,7 +329,7 @@ chmod +x scripts/openwebui_mcp.sh
 3. In top nav bar, click on **Settings** → **External Tools**
 4. Click the plus icon next to **Manage Tool Servers**
 5. Enter:
-   - **URL**: `http://localhost:8000/azure-ai-search`
+   - **URL**: `http://localhost:8001/azure-ai-search`
    - **API Key**: `top-secret` (or whatever you set when launching the script)
 6. Click **Save**
 
@@ -376,6 +378,13 @@ azure-ai-search-mcp/
 │   ├── openwebui_mcp.sh       # OpenWebUI mcpo launcher (macOS/Linux)
 │   ├── prod.ps1               # Prod mode launcher (Windows)
 │   └── prod.sh                # Prod mode launcher (macOS/Linux)
+├── azure/
+│   ├── Dockerfile              # Multi-stage Docker build
+│   ├── .dockerignore           # Build-context exclusions
+│   ├── infra.bicep             # Phase 1: ACR + Log Analytics + Environment
+│   ├── app.bicep               # Phase 2: Container App
+│   ├── deploy.ps1              # One-command deployment script
+│   └── README.md               # Deployment guide
 ├── tools/
 │   ├── __init__.py
 │   ├── semantic_search.py      # Semantic search tool

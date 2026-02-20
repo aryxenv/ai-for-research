@@ -249,6 +249,17 @@ This single command provisions an ACR, builds the Docker image remotely, and dep
 
 See the full guide: [`azure-ai-search-mcp/azure/README.md`](./azure-ai-search-mcp/azure/README.md).
 
+## Test Prompts
+
+Sample queries ranked from easiest to hardest for retrieval:
+
+| # | Difficulty | Prompt |
+|---|------------|--------|
+| 1 | Easy | What modular software toolkit is introduced to connect classical electronic structure calculations to quantum circuit execution? |
+| 2 | Medium | In the newly proposed pairwise measurement-based surface code, what is the exact fault-tolerance threshold achieved under a standard circuit noise model? |
+| 3 | Hard | For the single-qubit tetron device, how do the "detuning-based" and "cutter-based" approaches differ in decoupling quantum dots from the qubit island, and how does each approach specifically affect residual coupling and overall qubit coherence? |
+| 4 | Hard (Dev) | How does the QDK/Chemistry toolkit use a factory-based interface to let me swap out algorithm backends, like switching to PySCF, without rewriting my main Python workflow? |
+
 ## Credits
 
 - [Aryan Shah (SE Intern)](https://github.com/aryxenv): RAG Pipeline + Azure Setup + Foundry Setup + MCP Server Setup + Github Copilot MCP setup & integration + OpenWebUI MCP setup & integration + MCP Deployment + Documentation

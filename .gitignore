@@ -1,3 +1,4 @@
 .env
 __pycache__/
 .webui_secret_key
+.venv

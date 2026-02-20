@@ -24,10 +24,19 @@ A Python-based Model Context Protocol (MCP) server that integrates Azure AI Sear
 ### From Source
 
 ```bash
-git clone https://github.com/anassgallass/AI-for-Research---Dev-productivity.git
+git clone https://github.com/aryxenv/ai-for-research.git
 cd azure-ai-search-mcp
-uv sync
+uv venv          # creates .venv with the Python version specified in .python-version
+uv sync          # installs all dependencies into the virtual environment
 ```
+
+> **Troubleshooting:** If `uv sync` fails with a "No Python at …" error, the `.venv` is pointing to a Python installation that was moved or removed. Delete it and recreate:
+>
+> ```bash
+> rm -rf .venv     # PowerShell: Remove-Item -Recurse -Force .venv
+> uv venv
+> uv sync
+> ```
 
 ## Configuration
 

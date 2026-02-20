@@ -85,6 +85,9 @@ Use internal knowledge sources with AI agents using MCP with Azure.
 
 ### Run the MCP server
 
+> [!IMPORTANT]
+> First this must be set up, for setup go to [`./azure-ai-search-mcp/README.md`](./azure-ai-search-mcp/README.md)
+
 You must run these from the `azure-ai-search-mcp` directory for the scripts to work.
 
 The server supports three transport modes:
@@ -162,10 +165,13 @@ uv run python main.py --transport sse --port 8000     # SSE
 
 First we need to set up OpenWebUI:
 
-1. Install with uv + python:
+1. Install
 
-```powershell
-$env:DATA_DIR="C:\open-webui\data"; uvx --python 3.11 open-webui@latest serve
+```pwsh
+pip install -r requirements.txt # contains open-webui dep already
+
+# manually install if you want:
+pip install open-webui
 ```
 
 2. Open `http://localhost:8080` and create an admin account.

@@ -5,3 +5,4 @@ langchain-text-splitters
 openai
 azure-search-documents
 mcpo
+open-webui

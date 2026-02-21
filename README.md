@@ -236,6 +236,20 @@ chmod +x scripts/openwebui_mcp.sh
 
 The MCP tools will now be available in your OpenWebUI chats (you may need to enable them manually before submitting a prompt).
 
+##### For automatic tool enabling
+
+To make sure the model uses the tool by default, follow these steps:
+
+1. Click on `New chat` in left sidebar
+2. In top left of chat area, click on the model.
+3. Hover over the model, 3 dots will appear, click that and select `Edit`
+4. Enter this in `System Prompt`:
+   ```txt
+   You are a quantum researcher. Use the internal search context to answer always and strictly cite every fact inline. Extract the file name and page number from the 'location' field. CRITICAL: Do NOT use markdown links, tool chips, or UI buttons. You must output the citation as raw text exactly like this: (filename.ext, pg. X).
+   ```
+5. Select the tool checkbox.
+6. Hit `Save & Update`
+
 > [!NOTE]
 > The mcpo proxy and the GitHub Copilot HTTP config are independent — they both connect to the same MCP server and can run simultaneously.
 

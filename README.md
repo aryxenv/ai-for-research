@@ -259,12 +259,16 @@ See the full guide: [`azure-ai-search-mcp/azure/README.md`](./azure-ai-search-mc
 
 Sample queries ranked from easiest to hardest for retrieval:
 
-| # | Difficulty | Prompt |
-|---|------------|--------|
-| 1 | Easy | What modular software toolkit is introduced to connect classical electronic structure calculations to quantum circuit execution? |
-| 2 | Medium | In the newly proposed pairwise measurement-based surface code, what is the exact fault-tolerance threshold achieved under a standard circuit noise model? |
-| 3 | Hard | For the single-qubit tetron device, how do the "detuning-based" and "cutter-based" approaches differ in decoupling quantum dots from the qubit island, and how does each approach specifically affect residual coupling and overall qubit coherence? |
-| 4 | Hard (Dev) | How does the QDK/Chemistry toolkit use a factory-based interface to let me swap out algorithm backends, like switching to PySCF, without rewriting my main Python workflow? |
+| #   | Difficulty | Prompt                                                                                                                                                                                                                                               |
+| --- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Easy       | What modular software toolkit is introduced to connect classical electronic structure calculations to quantum circuit execution?                                                                                                                     |
+| 2   | Medium     | In the newly proposed pairwise measurement-based surface code, what is the exact fault-tolerance threshold achieved under a standard circuit noise model?                                                                                            |
+| 3   | Hard       | For the single-qubit tetron device, how do the "detuning-based" and "cutter-based" approaches differ in decoupling quantum dots from the qubit island, and how does each approach specifically affect residual coupling and overall qubit coherence? |
+| 4   | Hard (Dev) | How does the QDK/Chemistry toolkit use a factory-based interface to let me swap out algorithm backends, like switching to PySCF, without rewriting my main Python workflow?                                                                          |
+
+## Troubleshooting
+
+- For Windows ARM64 systems, it will not work due to wheels not being available if you have `Python for ARM`, consider using `Python for x64`. Your system will automatically apply a virtual layer to ensure that Python x64 works on ARM.
 
 ## Credits
 

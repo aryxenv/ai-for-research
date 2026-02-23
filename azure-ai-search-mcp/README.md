@@ -296,7 +296,28 @@ You can customize which fields are excluded via the `AZURE_SEARCH_EXCLUDE_FIELDS
 
 ## OpenWebUI Integration
 
-OpenWebUI doesn't support the MCP protocol natively. We use [`mcpo`](https://pypi.org/project/mcpo/) to bridge the running MCP server (streamable-http) to an OpenAPI endpoint that OpenWebUI can consume.
+OpenWebUI doesn't support the MCP protocol natively (yet, experimental only). We use [`mcpo`](https://pypi.org/project/mcpo/) to bridge the cloud-hosted MCP server to an OpenAPI endpoint that OpenWebUI can consume.
+
+### Configure your MCP server URL
+
+Open `mcpo-config.json` and replace the `url` with your own deployed MCP server endpoint:
+
+```jsonc
+{
+  "mcpServers": {
+    "azure-ai-search": {
+      "type": "streamable-http",
+      "url": "https://<your-container-app>.azurecontainerapps.io/mcp", // replace with your URL
+    },
+  },
+}
+```
+
+> [!NOTE]
+> The default URL is a demo server. After deploying your own MCP server
+> (see [Cloud Deployment](#cloud-deployment-azure-container-apps) or the
+> [Azure deployment guide](./azure/README.md)), update this URL with the endpoint
+> from your deployment output.
 
 ### Prerequisites
 
@@ -304,32 +325,32 @@ OpenWebUI doesn't support the MCP protocol natively. We use [`mcpo`](https://pyp
 pip install mcpo
 ```
 
-### Run the MCP server + mcpo proxy
+### Run the mcpo proxy
 
-The OpenWebUI scripts start the MCP server in the background, then launch mcpo
-pointing at it over streamable-http:
+The scripts start mcpo, which connects to the MCP server URL configured in
+`mcpo-config.json` and exposes an OpenAPI endpoint locally for OpenWebUI.
 
 From the `azure-ai-search-mcp` directory:
 
 **Windows (PowerShell):**
 
 ```powershell
-.\scripts\openwebui_mcp.ps1                                       # MCP on 8000, mcpo on 8001
-.\scripts\openwebui_mcp.ps1 -McpPort 9090 -McpoPort 9000          # custom ports
-.\scripts\openwebui_mcp.ps1 -ApiKey "my-secret"                   # custom api key
+.\scripts\openwebui_mcp.ps1                             # mcpo on port 8001
+.\scripts\openwebui_mcp.ps1 -McpoPort 9000              # custom port
+.\scripts\openwebui_mcp.ps1 -ApiKey "my-secret"         # custom api key
 ```
 
 **macOS / Linux:**
 
 ```bash
 chmod +x scripts/openwebui_mcp.sh
-./scripts/openwebui_mcp.sh                     # MCP on 8000, mcpo on 8001
-./scripts/openwebui_mcp.sh 9090 9000           # custom ports
-./scripts/openwebui_mcp.sh 8080 8000 my-key    # custom ports + api key
+./scripts/openwebui_mcp.sh                     # mcpo on port 8001
+./scripts/openwebui_mcp.sh 9000                # custom port
+./scripts/openwebui_mcp.sh 9000 my-key         # custom port + api key
 ```
 
-> **Note:** If you already have the MCP server running (e.g. via `scripts/prod.ps1`),
-> you can start mcpo separately: `mcpo --port 8001 --config mcpo-config.json --api-key "top-secret"`
+> [!NOTE]
+> You can also run mcpo directly: `mcpo --port 8001 --config mcpo-config.json --api-key "top-secret"`
 
 ### Add to OpenWebUI
 
@@ -344,8 +365,9 @@ chmod +x scripts/openwebui_mcp.sh
 
 The MCP tools will now be available in your OpenWebUI chats (you may need to enable them manually before submitting a prompt).
 
-> **Note:** The mcpo proxy and the GitHub Copilot config both connect to the same
-> running MCP server over streamable-http — they can run simultaneously without conflict.
+> [!NOTE]
+> The mcpo proxy and the GitHub Copilot config both connect to the same
+> cloud-hosted MCP server, they can run simultaneously without conflict.
 
 ## Troubleshooting
 

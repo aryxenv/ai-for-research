@@ -194,7 +194,10 @@ pip install open-webui
 uv sync
 ```
 
-OpenWebUI doesn't support MCP natively. We use [`mcpo`](https://pypi.org/project/mcpo/) to bridge the running MCP server (streamable-http) to an OpenAPI endpoint that OpenWebUI can consume.
+OpenWebUI doesn't support MCP natively. We use [`mcpo`](https://pypi.org/project/mcpo/) to bridge the cloud-hosted MCP server to an OpenAPI endpoint that OpenWebUI can consume.
+
+> [!IMPORTANT]
+> Before running the proxy, open `azure-ai-search-mcp/mcpo-config.json` and replace the `url` with your own deployed MCP server endpoint (the default is a demo URL). You can get your URL after running the [Cloud Deployment](#cloud-deployment-azure-container-apps) step.
 
 #### Prerequisites
 
@@ -202,25 +205,25 @@ OpenWebUI doesn't support MCP natively. We use [`mcpo`](https://pypi.org/project
 pip install mcpo
 ```
 
-#### Run the MCP server + mcpo proxy
+#### Run the mcpo proxy
 
 From the `azure-ai-search-mcp` directory:
 
 Windows (PowerShell):
 
 ```powershell
-.\scripts\openwebui_mcp.ps1                                       # MCP on 8000, mcpo on 8001
-.\scripts\openwebui_mcp.ps1 -McpPort 9090 -McpoPort 9000          # custom ports
-.\scripts\openwebui_mcp.ps1 -ApiKey "my-secret"                   # custom API key
+.\scripts\openwebui_mcp.ps1                            # mcpo on port 8001
+.\scripts\openwebui_mcp.ps1 -McpoPort 9000              # custom port
+.\scripts\openwebui_mcp.ps1 -ApiKey "my-secret"         # custom API key
 ```
 
 macOS / Linux:
 
 ```bash
 chmod +x scripts/openwebui_mcp.sh
-./scripts/openwebui_mcp.sh                     # MCP on 8000, mcpo on 8001
-./scripts/openwebui_mcp.sh 9090 9000           # custom ports
-./scripts/openwebui_mcp.sh 8080 8000 my-key    # custom ports + API key
+./scripts/openwebui_mcp.sh                     # mcpo on port 8001
+./scripts/openwebui_mcp.sh 9000                # custom port
+./scripts/openwebui_mcp.sh 9000 my-key         # custom port + API key
 ```
 
 #### Add to OpenWebUI
@@ -251,7 +254,7 @@ To make sure the model uses the tool by default, follow these steps:
 6. Hit `Save & Update`
 
 > [!NOTE]
-> The mcpo proxy and the GitHub Copilot HTTP config are independent — they both connect to the same MCP server and can run simultaneously.
+> The mcpo proxy and the GitHub Copilot HTTP config are independent, they both connect to the same cloud-hosted MCP server and can run simultaneously.
 
 ## Cloud Deployment (Azure Container Apps)
 

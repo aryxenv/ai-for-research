@@ -1,16 +1,12 @@
 # Demo: Factory-Based Backend Swapping
 
-Demonstrates that an AI agent can **pull knowledge through MCP** (Azure AI Search over QDK/Chemistry docs) and **apply it correctly in code**.
+## Agent expectations
 
-## The scenario
+The agent should pull internal research knowledge through an MCP server connection to a custom Azure AI Search instance.
 
-[main.py](main.py) contains a skeleton for a molecular-simulation workflow
-with `TODO` placeholders. The agent's job is to:
-
-1. Search the knowledge base via the MCP `hybrid_search` tool.
-2. Learn how the QDK/Chemistry toolkit uses a **factory-based interface** to
-   swap algorithm backends (Mock ↔ PySCF) without touching the main workflow.
-3. Fill in the TODOs so `main.py` runs end-to-end.
+[main.py](main.py) has a skeleton for a molecular-simulation workflow.
+The abstract interface and entry point are in place, but the backends
+and factory are missing.
 
 ## Demo query
 

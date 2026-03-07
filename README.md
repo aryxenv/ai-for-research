@@ -2,6 +2,10 @@
 
 Use internal knowledge sources with AI agents using MCP with Azure.
 
+# Demo
+
+https://github.com/user-attachments/assets/e82f75ef-8999-4742-8b41-032626b0222e
+
 ## Pre-requisites
 
 - Python (Ideally Python 3.11 or 3.10 for best compatibility)

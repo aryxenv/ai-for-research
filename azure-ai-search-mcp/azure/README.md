@@ -18,7 +18,8 @@ The deployed container exposes the MCP server over **streamable-http** at `https
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed and logged in (`az login`)
 - Your Azure AI Search service already set up (endpoint, API key, index name)
 
-> **Note:** Docker Desktop is **not** required. The image is built remotely in ACR via `az acr build`.
+> [!NOTE]
+> Docker Desktop is **not** required. The image is built remotely in ACR via `az acr build`.
 
 ## Quick start (PowerShell)
 

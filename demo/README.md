@@ -9,7 +9,7 @@ This demo showcases how GitHub Copilot (GHCP), connected to an **Azure AI Search
 ## Demo query
 
 ```txt
-implement the factory-registry pattern from QDK/Chemistry in `#file:main.py` — add a `BackendFactory` class with a decorator-based register/create API (mirroring `algo.create`), a `MockBackend` that returns a hard-coded energy, and a `PySCFBackend` that runs a real RHF/STO-3G calculation. Wire `run_simulation()` to use the factory so backends can be swapped by name without changing workflow code.
+implement the factory-registry pattern from QDK/Chemistry in demo/main.py add a `BackendFactory` class with a decorator-based register/create API (mirroring `algo.create`), a `MockBackend` that returns a hard-coded energy, and a `PySCFBackend` that runs a real RHF/STO-3G calculation. Wire `run_simulation()` to use the factory so backends can be swapped by name without changing workflow code.
 ```
 
 ## What "success" looks like

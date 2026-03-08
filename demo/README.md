@@ -6,6 +6,8 @@ This demo showcases how GitHub Copilot (GHCP), connected to an **Azure AI Search
 
 [main.py](main.py) starts as a skeleton: the abstract interface and entry point are in place, but the backends and factory are missing. The agent fills them in using the factory-registry pattern it retrieves from the indexed QDK docs.
 
+[solution.py](solution.py) contains the working code for the goal we are trying to achieve. (MAKE SURE AGENT DOES NOT USE THIS IN A DEMO)
+
 ## Demo query
 
 ```txt

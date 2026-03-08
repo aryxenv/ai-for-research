@@ -1,10 +1,18 @@
 # AI for Research
 
-Use internal knowledge sources with AI agents using MCP with Azure.
+Use internal knowledge sources with AI agents using MCP with Azure AI Search.
 
 # Demo
 
+Same MCP server, 2 different platforms, both of which do not support Azure AI Search natively.
+
+## OpenWebUI
+
 https://github.com/user-attachments/assets/e82f75ef-8999-4742-8b41-032626b0222e
+
+## Github Copilot
+
+https://github.com/user-attachments/assets/fc6121c8-bc79-4afb-b8e5-77549ed4a912
 
 ## Pre-requisites
 

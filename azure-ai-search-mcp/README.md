@@ -1,298 +1,69 @@
 # Azure AI Search MCP Server
 
-A Python-based Model Context Protocol (MCP) server that integrates Azure AI Search capabilities into agentic workflows. This server provides semantic search, hybrid search, text search, filtered search, and document retrieval tools for AI agents.
+A Python-based Model Context Protocol (MCP) server that integrates Azure AI Search capabilities into agentic workflows.
 
 ## Features
 
-- 🔍 **Semantic Search**: AI-powered search that understands context and meaning
-- 🔀 **Hybrid Search**: Combines full-text and vector search for balanced results
-- 📝 **Text Search**: Traditional keyword-based search
-- 🔎 **Filtered Search**: Search with OData filter expressions
-- 📄 **Document Fetch**: Retrieve specific documents by ID
-- 📊 **Index Schema Resource**: Access to index field definitions and metadata
-- 🌐 **OpenWebUI Integration**: Works with OpenWebUI via mcpo proxy
+- 🔍 **Semantic Search**: Context-aware AI search.
+- 🔀 **Hybrid Search**: Combines full-text and vector search.
+- 📝 **Text Search**: Keyword-based search.
+- 🔎 **Filtered Search**: Search narrows results with OData filters.
+- 📄 **Document Fetch**: Retrieve documents by ID.
+- 📊 **Index Schema Resource**: Access index field metadata.
+- 🌐 **OpenWebUI Integration**: Works with OpenWebUI via mcpo.
 
-## Installation
+## Architecture
 
-### Prerequisites
+![MCP Architecture](./mcp_architecture.png)
 
-- uv
-- Python 3.11 or higher
-- Azure AI Search Service
-- API keys (see `.env.example`)
+## Quickstart
 
-### From Source
+### 1. Install Dependencies
 
 ```bash
 git clone https://github.com/aryxenv/ai-for-research.git
 cd azure-ai-search-mcp
-uv venv          # creates .venv with the Python version specified in .python-version
-uv sync          # installs all dependencies into the virtual environment
+uv venv
+uv sync
 ```
 
-> **Troubleshooting:** If `uv sync` fails with a "No Python at …" error, the `.venv` is pointing to a Python installation that was moved or removed. Delete it and recreate:
->
-> ```bash
-> rm -rf .venv     # PowerShell: Remove-Item -Recurse -Force .venv
-> uv venv
-> uv sync
-> ```
+### 2. Configure Environment
 
-## Configuration
-
-### Environment Variables
-
-Create a `.env` file in your workspace root (parent of `azure-ai-search-mcp` directory) with these variables:
+Create a `.env` file in the workspace root:
 
 ```env
 AZURE_SEARCH_ENDPOINT=https://your-search-service.search.windows.net
 AZURE_SEARCH_API_KEY=your-api-key-here
 AZURE_SEARCH_INDEX_NAME=your-index-name
-
-# Optional: Comma-separated list of fields to exclude from search results
-# Default: contentVector
-AZURE_SEARCH_EXCLUDE_FIELDS=contentVector
 ```
 
-### Required Azure Resources
+### 3. Run the Server
 
-1. **Azure AI Search Service**: Create a search service in the Azure Portal
-2. **Search Index**: Configure an index with your data
-3. **API Key**: Get the admin or query key from the Azure Portal
+Use the provided scripts to start the server:
 
-Optional for enhanced semantic search:
-
-- **Semantic Configuration**: Enables Azure's semantic ranker (recommended but not required)
-- **Vectorizer**: Enables vector-based semantic search (works without semantic configuration)
-
-## Running the Server
-
-### Dev Mode (MCP Inspector)
-
-Dev mode launches the **MCP Inspector** — a browser-based UI that lets you invoke each tool interactively and inspect results. Great for testing and debugging.
-
-**Windows (PowerShell):**
-
-```powershell
-.\scripts\dev.ps1              # default port 8000
-.\scripts\dev.ps1 -Port 9090   # custom port
-```
-
-**macOS / Linux:**
-
-```bash
-chmod +x scripts/dev.sh
-./scripts/dev.sh            # default port 8000
-./scripts/dev.sh 9090       # custom port
-```
-
-The Inspector will open at **http://localhost:6274**.
-
-### Prod Mode (streamable-http)
-
-Prod mode runs the server with **streamable-http** transport, exposing an HTTP endpoint
-that GitHub Copilot, Claude Desktop, mcpo, and any MCP-compatible client can connect to.
-
-**Windows (PowerShell):**
-
-```powershell
-.\scripts\prod.ps1                              # default: 0.0.0.0:8000
-.\scripts\prod.ps1 -Port 9000                   # custom port
-.\scripts\prod.ps1 -Host 127.0.0.1 -Port 9000  # localhost only
-```
-
-**macOS / Linux:**
-
-```bash
-chmod +x scripts/prod.sh
-./scripts/prod.sh                   # default: 0.0.0.0:8000
-./scripts/prod.sh 127.0.0.1 9000    # custom host + port
-```
-
-You can also run directly:
-
-```bash
-uv run python main.py                                            # streamable-http on 0.0.0.0:8000 (default)
-uv run python main.py --port 9000                                # custom port
-uv run python main.py --host 127.0.0.1                           # localhost only
-uv run python main.py --transport stdio                          # legacy stdio mode
-uv run python main.py --transport sse --port 8000                # legacy SSE mode
-```
+- **Dev Mode (MCP Inspector)**: `.\scripts\dev.ps1` (Windows) or `./scripts/dev.sh` (macOS/Linux)
+- **Prod Mode (Streamable HTTP)**: `.\scripts\prod.ps1` (Windows) or `./scripts/prod.sh` (macOS/Linux)
 
 ## GitHub Copilot Integration
 
-This server can be used as a **custom MCP server** in GitHub Copilot (VS Code).
-
-> **Prerequisite:** The MCP server must be running first (e.g. via `scripts/prod.ps1`).
-
-### Option 1 — Workspace config (recommended)
-
-A ready-to-use config is provided at `.vscode/mcp.json`. It connects to the running MCP server over HTTP:
-
-```jsonc
-// .vscode/mcp.json
-{
-  "servers": {
-    "azure-ai-search": {
-      "type": "http",
-      "url": "http://localhost:8000/mcp",
-      "headers": {
-        "Content-Type": "application/json",
-      },
-    },
-  },
-}
-```
-
-### Option 2 — User-level settings
-
-Add the server to your VS Code **User Settings** (`settings.json`):
-
-```jsonc
-{
-  "mcp": {
-    "servers": {
-      "azure-ai-search": {
-        "type": "http",
-        "url": "http://localhost:8000/mcp",
-        "headers": {
-          "Content-Type": "application/json",
-        },
-      },
-    },
-  },
-}
-```
-
-### Option 3 — Remote / containerised deployment
-
-If the MCP server runs in a container or remote host, just point the URL at it:
+To use with GitHub Copilot (VS Code), add this to your VS Code `.vscode/mcp.json`:
 
 ```jsonc
 {
   "servers": {
     "azure-ai-search": {
       "type": "http",
-      "url": "https://your-container-app.azurecontainerapps.io/mcp",
-      "headers": {
-        "Content-Type": "application/json",
-      },
+      "url": "https://mcp-search-app.politesky-cce0791d.swedencentral.azurecontainerapps.io/mcp", // demo server, replace with your own
+      "headers": { "Content-Type": "application/json" },
     },
   },
 }
 ```
 
-> **Tip:** See the [Azure Container Apps deployment guide](./azure/README.md) for a one-command deploy to Azure.
+The AI agent will auto-discover tools like `semantic_search`, `hybrid_search`, etc.
 
-After configuring, Copilot's **Agent mode** (Chat panel) will auto-discover the tools (`semantic_search`, `hybrid_search`, `text_search`, `filtered_search`, `fetch_document`). You can verify under **MCP: List Servers** in the Command Palette.
-
-## Available Tools
-
-### 1. `semantic_search`
-
-Performs AI-powered semantic search that understands context and meaning. Works with or without semantic configuration - will use vectorizer if semantic configuration is not available.
-
-**Parameters:**
-
-- `query` (string, required): The search query
-- `top` (number, optional): Maximum results to return (default: 5)
-
-**Example:**
-
-```json
-{
-  "query": "machine learning algorithms",
-  "top": 5
-}
-```
-
-### 2. `hybrid_search`
-
-Combines full-text and vector search for balanced results.
-
-**Parameters:**
-
-- `query` (string, required): The search query
-- `top` (number, optional): Maximum results to return (default: 5)
-
-**Example:**
-
-```json
-{
-  "query": "artificial intelligence trends",
-  "top": 5
-}
-```
-
-### 3. `text_search`
-
-Traditional keyword-based text search.
-
-**Parameters:**
-
-- `query` (string, required): The search query
-- `top` (number, optional): Maximum results to return (default: 5)
-
-**Example:**
-
-```json
-{
-  "query": "data science",
-  "top": 5
-}
-```
-
-### 4. `filtered_search`
-
-Search with OData filter expressions to narrow results.
-
-**Parameters:**
-
-- `query` (string, required): The search query
-- `filter` (string, required): OData filter expression
-- `top` (number, optional): Maximum results to return (default: 5)
-
-**Example:**
-
-```json
-{
-  "query": "technology",
-  "filter": "category eq 'AI' and year ge 2020",
-  "top": 5
-}
-```
-
-### 5. `fetch_document`
-
-Retrieve a specific document by its unique ID. Returns the complete document with all fields.
-
-**Parameters:**
-
-- `document_id` (string, required): The document's unique identifier
-
-**Example:**
-
-```json
-{
-  "document_id": "doc-12345"
-}
-```
-
-## Field Exclusion
-
-- **Search tools** (`semantic_search`, `hybrid_search`, `text_search`, `filtered_search`): Return document summaries without fields specified in `AZURE_SEARCH_EXCLUDE_FIELDS` environment variable (default: `contentVector`)
-- **Fetch document**: Always returns full document with only `contentVector` fields excluded
-
-You can customize which fields are excluded via the `AZURE_SEARCH_EXCLUDE_FIELDS` environment variable. The `fetch_document` tool always excludes only `contentVector`.
-
-## Security Notes
-
-- **API Keys**: Never commit API keys to version control
-- **Environment Variables**: Use environment variables or secure secret management
-- **Access Control**: Use Azure RBAC and query keys (not admin keys) in production
-- **Rate Limiting**: Be aware of Azure Search service tier limits
-- **Field Exclusion**: Use `AZURE_SEARCH_EXCLUDE_FIELDS` to prevent sensitive data from being returned in search results
-- **Data Privacy**: The `contentVector` fields are always excluded from search results by default
+> [!NOTE]
+> The example mcp server only contains `hybrid_search` tool to avoid hallucinations, enable other tools if needed in your mcp server.
 
 ## OpenWebUI Integration
 
@@ -307,7 +78,7 @@ Open `mcpo-config.json` and replace the `url` with your own deployed MCP server 
   "mcpServers": {
     "azure-ai-search": {
       "type": "streamable-http",
-      "url": "https://<your-container-app>.azurecontainerapps.io/mcp", // replace with your URL
+      "url": "https://mcp-search-app.politesky-cce0791d.swedencentral.azurecontainerapps.io/mcp", // example server, replace with your url
     },
   },
 }
